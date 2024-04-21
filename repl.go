@@ -12,7 +12,7 @@ func initializeRepl(cfg *config) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
-		fmt.Print(" >")
+		fmt.Print("Gopherdex >")
 		scanner.Scan()
 		text := scanner.Text()
 
@@ -22,6 +22,10 @@ func initializeRepl(cfg *config) {
 		}
 
 		commandName := cleaned[0]
+		args := []string{}
+		if len(cleaned) > 1 {
+			args = cleaned[1:]
+		}
 
 		availableCommands := getCommands()
 
@@ -31,7 +35,7 @@ func initializeRepl(cfg *config) {
 			continue
 		}
 
-		err := command.callback(cfg)
+		err := command.callback(cfg, args...)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -41,7 +45,13 @@ func initializeRepl(cfg *config) {
 type cliCommand struct {
 	name        string
 	description string
-	callback    func(*config) error
+	callback    func(*config, ...string) error
+}
+
+func cleanInput(str string) []string {
+	lowered := strings.ToLower(str)
+	words := strings.Fields(lowered)
+	return words
 }
 
 func getCommands() map[string]cliCommand {
@@ -61,16 +71,15 @@ func getCommands() map[string]cliCommand {
 			description: "Lists the previous page of location areas",
 			callback:    callbackMapb,
 		},
+		"explore": {
+			name:        "explore {location_area}",
+			description: "Lists the pokemon in a location area",
+			callback:    callbackExplore,
+		},
 		"exit": {
 			name:        "exit",
 			description: "Exit from Gopherdex",
 			callback:    callbackExit,
 		},
 	}
-}
-
-func cleanInput(str string) []string {
-	lowered := strings.ToLower(str)
-	words := strings.Fields(lowered)
-	return words
 }
