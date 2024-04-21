@@ -3,7 +3,7 @@ package main
 import "fmt"
 
 func callbackHelp(cfg *config, args ...string) error {
-	fmt.Println("X----Gopherdex Help Menu----X")
+	fmt.Println("\nGopherdex Help Menu")
 	fmt.Println("Available commands: ")
 
 	availableCommands := getCommands()
