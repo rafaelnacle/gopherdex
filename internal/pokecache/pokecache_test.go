@@ -46,17 +46,23 @@ func TestAddGetCache(t *testing.T) {
 	}
 }
 
-func TestReap(t *testing.T) {
-	interval := time.Millisecond * 10
-	cache := NewCache(interval)
+func TestReapLoop(t *testing.T) {
+	const baseTime = 5 * time.Millisecond
+	const waitTime = baseTime + 5*time.Millisecond
+	cache := NewCache(baseTime)
+	cache.Add("https://example.com", []byte("testdata"))
 
-	keyOne := "key1"
-	cache.Add(keyOne, []byte("val1"))
+	_, ok := cache.Get("https://example.com")
+	if !ok {
+		t.Errorf("expected to find key")
+		return
+	}
 
-	time.Sleep(interval + time.Millisecond)
+	time.Sleep(waitTime)
 
-	_, ok := cache.Get(keyOne)
+	_, ok = cache.Get("https://example.com")
 	if ok {
-		t.Errorf("%s should have been reaped", keyOne)
+		t.Errorf("expected to not find key")
+		return
 	}
 }
